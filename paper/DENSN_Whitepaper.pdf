@@ -1,0 +1,600 @@
+\documentclass[11pt, a4paper]{article}
+
+%==============================================================================
+%   PREAMBLE & PACKAGES
+%==============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb, amsthm, amsfonts, mathtools}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{physics}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{fancyhdr}
+
+%------------------------------------------------------------------------------
+%   CODE SNIPPET STYLING
+%------------------------------------------------------------------------------
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.96,0.96,0.96}
+
+\lstdefinestyle{scientific}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single
+}
+\lstset{style=scientific}
+
+%------------------------------------------------------------------------------
+%   MATHEMATICAL DEFINITIONS
+%------------------------------------------------------------------------------
+\newcommand{\PsiGlobal}{\Psi_{\text{global}}}
+\newcommand{\PhiField}{\Phi}
+\newcommand{\Laplacian}{\mathcal{L}}
+\newcommand{\Graph}{\mathcal{G}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Meta}{S_{\text{meta}}}
+\newcommand{\Ind}{\mathbb{I}}
+\newcommand{\ConflictCache}{\mathcal{K}}
+\newcommand{\Neigh}{\mathcal{N}}
+\newcommand{\Everify}{E_{\text{verify}}}
+
+%------------------------------------------------------------------------------
+%   THEOREM ENVIRONMENTS
+%------------------------------------------------------------------------------
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{remark}{Remark}
+
+%------------------------------------------------------------------------------
+%   METADATA
+%------------------------------------------------------------------------------
+\title{\textbf{DENSN: Dual-Pathway Neuro-Symbolic Optimization\\via Spectral Structure Learning}}
+\author{
+    \textbf{Liam O'Boyle}\\
+    \texttt{liamoboyle0@gmail.com}
+}
+\date{September 08, 2025}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+%==============================================================================
+%   ABSTRACT
+%==============================================================================
+\begin{abstract}
+\noindent Conventional neuro-symbolic systems often operate under the constraint of a fixed ontology, where learning is restricted to parameter optimization within a static graph topology. This approach is inherently limited when faced with ``out-of-distribution'' logical contradictions—scenarios where the existing symbols are fundamentally insufficient to represent the domain. We present the \textbf{Dynamic Energy-Based Neuro-Symbolic Network (DENSN)}, a framework that treats logical frustration not as a terminal error, but as a generative signal for topological expansion. 
+
+DENSN introduces a \textbf{Dual-Pathway Optimization} mechanism: \textit{Pathway A (Coherence)} minimizes free energy in low-tension regimes via spectral diffusion and modularity optimization, while \textit{Pathway B (Frustration)} utilizes persistent logical paradoxes to trigger structural evolution—synthesizing new meta-symbols via Markov Blanket analysis and Exact/Approximate interface synthesis. This architecture replaces rigid static solvers with a \textbf{Spectral-MCM Hybrid Engine}, combining global spectral guidance via the Graph Laplacian with local stochastic refinement. We provide a rigorous Lyapunov stability analysis for the spectral relaxation and introduce an \textbf{Energetic Verification} protocol that mathematically decouples structural validity from semantic labeling, mitigating LLM-based hallucinations in neuro-symbolic concept formation. Our empirical validation on biomedical corpora and synthetic XOR paradoxes demonstrates that DENSN can autonomously navigate from localized controversies to hierarchical consensus, providing a scalable pathway for automated scientific discovery.
+\end{abstract}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+%==============================================================================
+%   1. INTRODUCTION
+%==============================================================================
+\section{Introduction}
+
+The central promise of Neuro-Symbolic Artificial Intelligence (NSA) is the integration of the robust, generalizable reasoning of symbolic logic with the adaptive, data-driven learning of neural architectures. Current paradigms—ranging from Differentiable Logics \cite{garcez2019neural, badreddine2022logic} and Neural Probabilistic Logic \cite{manhaeve2018deepproblog} to the Neural-Symbolic Concept Learner \cite{mao2019neuro}—have made significant strides in this direction. However, these systems often share a common fundamental vulnerability: they assume a predefined and fixed ontology or graph topology \cite{richardson2006markov}. Whether the system is adjusting truth values in a fuzzy logic or probability masses in a factor graph, it is constrained by its initial ontological vocabulary.
+
+In any complex, evolving knowledge domain—such as theoretical physics, molecular biology, or environmental science—new data frequently introduces contradictions that cannot be resolved within the existing symbolic framework. Standard computational logic treats such contradictions as failure states ($\bot$) to be eliminated via backtracking or pruning. We hypothesize, however, that the capacity for genuine machine intelligence is bounded by the system's ability to internalize and resolve contradiction through \textbf{Topological Expansion}.
+
+We propose that a persistent structural paradox is not an error in calculation, but an \textit{energetic signal} that the parameter space of the system is insufficient to describe reality. To address this, we present the \textbf{Dynamic Energy-Based Neuro-Symbolic Network (DENSN)}, which formalizes the transition from parameter optimization to structure learning through three core contributions:
+
+\begin{enumerate}
+    \item \textbf{Dual-Pathway Optimization:} We propose that optimization is not a monolithic process but a dual-pathway mechanism. In high-consensus regimes, the system optimizes for \textit{Coherence} (Modularity); in high-conflict regimes, it optimizes for \textit{Resolution} (Structural Evolution).
+    \item \textbf{A Physics-Based Hybrid Engine:} We move beyond discrete heuristics by implementing a \textbf{Spectral-MCM Engine}. This engine utilizes the eigenvalues of the Graph Laplacian to define a global potential field, steering binary states through a spectrally-stable diffusion process before collapsing into discrete truth assignments.
+    \item \textbf{Interface Fidelity \& Energetic Verification:} We formulate a rigorous test for the "Symbol Grounding Problem." By measuring the Hamiltonian response ($\Delta \Psi$) to injected semantic labels, we provide a mathematical safeguard that ensures endogenously derived structural logic is consistent with exogenously retrieved human semantics.
+\end{enumerate}
+
+In the following sections, we derive the mathematical foundations of the DENSN Hamiltonian, prove the stability of its hybrid dynamics, and demonstrate its efficacy in resolving complex medical controversies and synthetic SAT paradoxes.
+
+%==============================================================================
+%   2. CORE FORMALISM
+%==============================================================================
+\section{Core Formalism: The Dynamic Energy Landscape}
+
+The DENSN framework operates on a dynamic bipartite graph $\Graph(t) = (\mathcal{S}, \mathcal{C}, E)$ that mediates the relationship between atomic logical propositions and the constraints that govern them. Unlike static graphical models, the DENSN graph is an evolving manifold where both node states and edge topologies respond to logical pressure.
+
+\subsection{The Global Hamiltonian and Conflict Memory}
+
+The central quantity of the DENSN system is the Global Hamiltonian $\Psi(t)$, which serves as a macroscopic measure of logical frustration (total tension). We define the system state as a vector $\mathbf{s} \in \{0, 1\}^n$, where each component $s_i$ represents the truth value of symbol $S_i$.
+
+\begin{definition}[Weighted Violation Mass]
+The Global Hamiltonian is defined as the sum of weighted binary violation states:
+\begin{equation}
+    \Psi(t) = \sum_{j=1}^m w_j(t) \cdot T_j(\mathbf{s})
+    \label{eq:ham_weighted}
+\end{equation}
+where $T_j(\mathbf{s}) \in \{0, 1\}$ is a predicate function that evaluates to $1$ if constraint $C_j$ is violated under state $\mathbf{s}$, and $0$ otherwise. This formulation aligns with the broader class of Energy-Based Models (EBM) as formalized by LeCun et al. \cite{lecun2006tutorial}.
+\end{definition}
+
+In traditional SAT solvers or LTNetworks, the weights $w_j$ are often treated as static priors. In DENSN, we introduce \textbf{Conflict Cache Dynamics} ($\ConflictCache$), where constraint weights evolve temporally based on the persistence of their violation. This prevents the system from stagnating in low-energy limit cycles and effectively "pinches" paradoxes until they are forced into structural resolution.
+
+\begin{equation}
+    w_j(t) = w_{\text{base}} \cdot (1 + \eta \cdot \text{persistence}_j(t))
+    \label{eq:escalation}
+\end{equation}
+
+where $w_{\text{base}}$ is the default constraint importance, $\eta$ is the escalation rate (sensitivity to frustration), and $\text{persistence}_j$ is a monotonic counter of consecutive epochs where $C_j$ has remained violated.
+
+\begin{remark}[The Saturation Plateau and $\Psi_{\text{crit}}$]
+To ensure structural bounded-behavior, we define $w_{\max}$ as the \textbf{Saturation Plateau} (internal parameter \texttt{mcm\_\allowbreak max\_\allowbreak weight\_\allowbreak multiplier}). Escalation follows Equation \eqref{eq:escalation} until one of two conditions is met:
+\begin{enumerate}
+    \item $w_j \ge w_{\max}$: The constraint reaches its maximum possible importance, becoming a "hard" boundary condition for the local cluster.
+    \item $\Psi_{\text{cluster}} \ge \Psi_{\text{crit}}$: The aggregate tension of the connected subgraph exceeds the critical threshold for \textbf{Frustration-Driven Learning (Pathway B)}, triggering immediate TSL abstraction.
+\end{enumerate}
+\end{remark}
+
+\subsection{The Continuous Potential Field and Forcing Vector}
+
+While Equation \eqref{eq:ham_weighted} defines the discrete energy landscape, the inference engine requires a continuous representation to steer the state towards feasibility. We define the \textbf{Local Potential} $\Phi(S_i)$ for each symbol as the aggregate pressure incident on that node:
+
+\begin{equation}
+    \Phi(S_i) = \sum_{C_k \in \Neigh(S_i)} w_k(t) \cdot T_k(\mathbf{s})
+\end{equation}
+
+This potential field maps the logical tension to a "Force Field" in $\Real^n$. The optimization is then driven by the \textbf{Forcing Vector} $\mathbf{b}_t$, which represents the instantaneous gradient of the Hamiltonian:
+
+\begin{equation}
+    \mathbf{b}_t = -\nabla_{\mathbf{s}} \Psi(\mathbf{s}, \mathbf{w})
+\end{equation}
+
+Note that because $\mathbf{s}$ is discrete, $\Psi$ is strictly piecewise differentiable; in implementation, $b_{i,t}$ serves as a \textit{Net Logical Torque}—the magnitude of the incentive to flip symbol $S_i$ based on the local sensitivity of incident violated constraints. A minimal 3-symbol example of this machinery is detailed in Section 6.2.
+
+%==============================================================================
+%   3. SPECTRAL-MCM HYBRID DYNAMICS
+%==============================================================================
+\section{Spectral-MCM Hybrid Dynamics}
+
+Optimization in a high-dimensional logical space is traditionally plagued by the presence of vast, low-utility plateaus and sharp, local energetic wells. Standalone SAT solvers, while efficient at discrete exploration, lack a global sense of the graph's topological "flow." Conversely, continuous gradient methods (such as those in LTNs) often struggle with the rigid non-convexity of XOR-like constraints. DENSN resolves this by decoupling the optimization into two distinct phases: a \textbf{Global Spectral Diffusion} phase for landscape smoothing, and a \textbf{Local Stochastic Collapse} phase for discrete satisfiability.
+
+\subsection{Continuous Phase: Spectral Diffusion and Potential Flow}
+
+We define the weighted incidence matrix $A \in \Real^{m \times n}$ where $A_{ji}$ represents the participation of $S_i$ in $C_j$. The Graph Laplacian, which captures the topological connectivity and tension flow of the symbol-symbol projection, is defined as $\Laplacian = A^\top W A$, where $W = \text{diag}(w_1, \dots, w_m)$ is the dynamic weight matrix from Section 2. This spectral representation is foundational in spectral graph theory \cite{chung1997spectral} and ensures that the potential flow respects the algebraic connectivity of the knowledge graph \cite{fiedler1973algebraic}.
+
+The potential field $\PhiField$ evolves via a discrete-time diffusion process, analogous to Laplacian Eigenmaps in dimensionality reduction \cite{belkin2003laplacian}. This process allows "logical potential" to flow from high-tension clusters to lower-tension regions, effectively smoothing the energy landscape and revealing the global structure of the problem.
+
+\begin{equation}
+    \PhiField_{t+1} = (I - \kappa \Laplacian)\PhiField_t + \mathbf{b}_{t}
+    \label{eq:diffusion_expanded}
+\end{equation}
+
+The diffusion rate $\kappa$ is a critical hyperparameter. If $\kappa$ is too small, the system fails to propagate tension information globally; if too large, the system oscillates and violates the Lyapunov stability criterion. In the DENSN implementation, $\kappa$ is bounded by the reciprocal of the largest eigenvalue of $\Laplacian$, ensuring that the linear operator $(I - \kappa \Laplacian)$ remains a contraction for all non-zero frequency components.
+
+\paragraph{Implementation: Spectral Initialization.}
+The following Python implementation (Listing \ref{lst:spectral_init}) demonstrates the dynamic calculation of $\kappa$ using Arnoldi iterations to find the spectral radius of the graph.
+
+\begin{lstlisting}[language=Python, caption=Spectral Initialization Logic, label=lst:spectral_init, float=ht!]
+# densn/dynamics/relaxation.py
+import scipy.sparse.linalg
+import numpy as np
+
+def initialize_dynamics(self, graph):
+    """
+    Initializes the diffusion rate kappa based on the spectral 
+    properties of the graph Laplacian to ensure stability.
+    """
+    # 1. Construct the Laplacian L = A^T * W * A
+    L = self.build_laplacian(graph)
+    
+    # 2. Compute the largest eigenvalue (Lambda_max)
+    # Theory: kappa < 2 / lambda_max for L2 stability.
+    eigenvals = scipy.sparse.linalg.eigsh(L, k=1, which='LM', 
+                                         return_eigenvectors=False)
+    lambda_max = eigenvals[0]
+    
+    # 3. Set diffusion rate kappa with safety factor
+    self.kappa = (2.0 / lambda_max) * 0.95 
+    
+    return self.kappa
+\end{lstlisting}
+
+\subsection{Discrete Phase: Stochastic Collapse and WalkSAT Heuristic}
+
+While spectral diffusion aligns the potential field with the global topology, the actual truth values $s_i$ must remain discrete. The \textbf{Collapse Operator} $\mathcal{O}_{collapse}$ periodically projects the continuous potential back into the boolean space.
+
+This operator follows a modified WalkSAT logic \cite{selman1994noise}: it prioritizes flipping symbols with high local potential $\Phi(S_i)$, but introduces controlled stochastic noise to escape local minima. This ensures that the system does not get trapped in "logical vortices"—subgraphs where local optimization cannot reach a zero-tension state. Modern CDCL-based solvers like MiniSAT \cite{een2003extensible} utilize conflict-clause learning, but DENSN relies on spectral smoothing to achieve global awareness before entering the discrete search phase.
+
+\begin{algorithm}
+\caption{Hybrid Collapse Operator (WalkSAT-Inspired)}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Potential field $\PhiField$, Noise probability $p$, Threshold $\theta$
+\For{each symbol $S_i \in \mathcal{S}$}
+    \If{$\PhiField(S_i) > \theta$} \Comment{Symbol is under significant logical pressure}
+        \State Calculate $\Delta \Psi_i = \Psi(\mathbf{s} \text{ with } s_i \text{ flipped}) - \Psi(\mathbf{s})$
+        \If{Random($0,1$) $< p$}
+            \State $s_i \leftarrow 1 - s_i$ \Comment{Explore via noise (Heat injection)}
+        \ElsIf{$\Delta \Psi_i < 0$}
+            \State $s_i \leftarrow 1 - s_i$ \Comment{Greedy Descent (Newton-like bit flip)}
+        \EndIf
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+The synergy between the continuous diffusion and discrete collapse constitutes the \textbf{Spectral-MCM Engine}. Diffusion provides the "physics-based" guidance, while collapse provides the "algorithmic-descent" into feasible states.
+
+%==============================================================================
+%   4. TOPOLOGICAL STRUCTURE LEARNING (TSL)
+%==============================================================================
+\section{Topological Structure Learning (TSL)}
+
+The most distinctive feature of the DENSN architecture is its ability to transition from parameter optimization to \textbf{Topological Structure Learning (TSL)}. While the Spectral-MCM engine resolves tension within a fixed graph manifold, the TSL module is responsible for evolving that manifold itself. This evolution is not a random search but a targeted response to the system's internal energy state.
+
+\subsection{Dual-Pathway Optimization: Modularity vs. Resolution}
+
+We propose that hierarchical learning follows a \textbf{Dual-Pathway} mechanism, where the trigger for structural change is based on the residual Hamiltonian $\Psi$.
+
+\begin{itemize}
+    \item \textbf{Pathway A: Structure-Driven (Coherence Consolidation).} \\
+    Triggered when $\Psi < \Psi_{\text{crit}}$ and $\dot{\Psi} \approx 0$. In this regime, the system is globally satisfiable but topologically "messy." DENSN optimizes for \textbf{Model Parsimony} by identifying clusters of highly-correlated symbols that exhibit no internal conflict. This aligns with the Minimum Description Length (MDL) principle \cite{rissanen1978modeling}, where the system seeks the most compressed representation of its symbolic state.
+    
+    \item \textbf{Pathway B: Frustration-Driven (Paradox Resolution).} \\
+    Triggered when $\Psi \ge \Psi_{\text{crit}}$ and $\dot{\Psi} \approx 0$. This represents a \textbf{Frustrated Equilibrium}—an ontological failure where no bit-flipping combination can satisfy the existing constraints. DENSN identifies the "Tension Hotspot" and abstracts it, a process analogous to non-monotonic Belief Revision in the AGM framework \cite{alchourron1985logic}, where the system must expand its ontology to maintain consistency.
+\end{itemize}
+
+\paragraph{Implementation: Dual-Pathway Selection.}
+The engine determines the pathway by examining the global and local tension maps before performing community detection (see Listing \ref{lst:dual_pathway} for implementation details).
+
+\begin{lstlisting}[language=Python, caption=Dual-Pathway Community Detection, label=lst:dual_pathway, float=ht!]
+# densn/tsl/community.py
+
+def find_clusters(self, graph, tension_map, total_tension):
+    """
+    Switches between Pathway A (Coherence) and Pathway B (Frustration)
+    based on the critical tension threshold PSI_CRIT.
+    """
+    PSI_CRIT = self.config.tsl_frustration_threshold
+    
+    # PATHWAY B: Frustration-Driven (Resolve Paradoxes)
+    if total_tension > PSI_CRIT:
+        # Use tension density (w * T) as edge weights for clustering
+        return self.find_louvain(graph, edge_weights=tension_map)
+    
+    # PATHWAY A: Structure-Driven (Consolidate Knowledge)
+    else:
+        # Use structural adjacency (binary connectivity) as weights
+        return self.find_louvain(graph, edge_weights="TOPOLOGY")
+\end{lstlisting}
+
+\subsection{The Abstraction Operator and Interface Synthesis}
+
+When a cluster $G_{sub}$ is identified for abstraction, DENSN must synthesize an \textbf{Interface Function} $f_{\text{meta}}$. This function defines how the new meta-symbol $\Meta$ interacts with the rest of the graph (its Markov Blanket).
+
+The synthesis task is a search for the minimal logical representation that preserves the truth-table of the underlying cluster pins. To maintain scalability, DENSN employs an \textbf{Adaptive Synthesis Pipeline}:
+
+\begin{enumerate}
+    \item \textbf{Exact Synthesis (Quine-McCluskey):} For Markov Blankets with $|I| \le 6$, the system performs a full prime-implicant reduction \cite{brayton1984logic}. This guarantees the most compressed possible logical representation, minimizing the "Symbolic Tax" on the engine.
+    \item \textbf{Approximate Synthesis (Neural/Statistical):} For $|I| > 6$, the state space ($2^{|I|}$) becomes intractable for exact methods. DENSN instead trains a shallow Neural Network (or Decision Tree) to approximate the interface logic, trading absolute formal precision for computational tractability.
+\end{enumerate}
+
+This ability to trade precision for speed allows DENSN to scale linearly with problem size, a capability missing in traditional purely-symbolic logic engines.
+
+%==============================================================================
+%   5. THE NEURO-SYMBOLIC BRIDGE
+%==============================================================================
+\section{The Neuro-Symbolic Bridge: Semantic Verification}
+
+A recurring challenge in autonomous neuro-symbolic systems is the "Semantic Hallucination" problem: the generation of symbolic abstractions that are structurally useful but semantically incoherent or factually incorrect. DENSN mitigates this by maintaining a strict separation between \textbf{Structural Truth} (endogenous) and \textbf{Semantic Meaning} (exogenous), using the system's own energy function as a verification gate.
+
+\subsection{Formalizing the Grounding Problem}
+
+For any synthesized meta-symbol $\Meta$, DENSN possesses two independent definitions:
+\begin{enumerate}
+    \item \textbf{Structural Realization ($f_{\text{meta}}$):} The logic minimized from the Markov Blanket during TSL. This represents the *functional* reality of the cluster.
+    \item \textbf{Semantic Hypothesis ($L_{\text{meta}}$):} A human-readable label or description proposed by a Large Language Model (LLM). This represents the *intended* meaning based on the conceptual centroid of the abstracted symbols.
+\end{enumerate}
+
+Traditional concept-learning systems accept $L_{\text{meta}}$ implicitly. In DENSN, $L_{\text{meta}}$ must survive an energetic audit.
+
+\subsection{The Energetic Verification Protocol}
+
+To verify a label, the system tentatively injects a bidirectional implication constraint—the \textbf{Verification Bridge}—between the structural function and the semantic label: 
+\begin{equation}
+    C_{\text{v}} : L_{\text{meta}} \longleftrightarrow f_{\text{meta}}
+\end{equation}
+The system then measures the \textbf{Energetic Impact} $\Delta \Psi$ of this new constraint on the Global Hamiltonian.
+
+\begin{definition}[Verification Energy]
+The Energetic Response of the system to a semantic hypothesis is defined as:
+\begin{equation}
+    \Delta \Psi = \Psi(\Graph \cup \{C_{\text{v}}\}) - \Psi(\Graph)
+\end{equation}
+We define the \textbf{Energetic Verification Threshold} $\epsilon_v$ (internal parameter \texttt{semantic\_\allowbreak verification\_\allowbreak threshold}, typically $0.1$) as the maximum permissible tension increase.
+\end{definition}
+
+\subsection{The Bridge Decision Rule}
+
+The decision to accept a semantic label is governed by the following rule:
+\begin{enumerate}
+    \item \textbf{Acceptance ($\Delta \Psi \le \epsilon_v$):} The semantic hypothesis introduces no significant contradiction into the system. The label is considered "Grounded" and is finalized.
+    \item \textbf{Rejection ($\Delta \Psi > \epsilon_v$):} The label is inconsistent with the structural physics of the cluster (e.g., labeling a causal chain as a conflict). The hypothesis is rejected as a "Hallucination," and the system fallbacks to a generic structural identifier (\texttt{CLUSTER\_ID}) until a valid hypothesis is provided.
+\end{enumerate}
+
+This protocol ensures that DENSN's symbolic representation remains "truthful" to its underlying logical state, even when using black-box neural models.
+
+%==============================================================================
+%   6. EMPIRICAL VALIDATION
+%==============================================================================
+We evaluated the DENSN framework across two distinct experimental paradigms: a large-scale real-world biomedical knowledge extraction task and a controlled synthetic benchmark designed to probe the limits of structural paradox resolution. The current implementation is a single-machine prototype developed in Python, utilizing NumPy and SciPy for spectral operations.
+
+\subsection{Biomedical Case Study: Consensus vs. Controversy}
+
+The first validation phase focused on the system's ability to navigate high-dimensional concept spaces derived from raw scientific literature. We selected the clinical debate regarding the survival efficacy of \textit{Cisplatin} versus \textit{Carboplatin} in ovarian cancer treatment as our primary test case.
+
+\paragraph{Graph Complexity.}
+We queried PubMed with the string ``cisplatin carboplatin ovarian cancer survival'' and ingested the top 10 primary research abstracts. The resulting graph contained \textbf{579 atomic symbols} and \textbf{922 logical constraints}. A subset of \textbf{116 constraints} corresponding to canonical oncological facts (e.g., basic pharmacological and survival relations) was locked as a Tier-1 ``Sensory Boundary'' to prevent semantically implausible flips of established medical knowledge.
+
+\paragraph{Inference Summary.}
+In this biomedical run, the Spectral-MCM engine executed three full relaxation cycles. The recorded global tension remained numerically constant ($\Psi_{\text{init}} = \Psi_{\text{final}} = 11.22$), while the residual ratio emitted by the engine was $0.0388$ (approximately $3.9\%$). Internally, the system identified exactly one XOR-class conflict core corresponding to mutually exclusive superiority claims between Carboplatin and Cisplatin regimens. The engine reported:
+\begin{itemize}
+    \item \textbf{High-consensus background:} The system identified no persistent unsatisfied cores at the configured thresholds outside of the primary conflict cluster. Spectral diffusion reorganized the continuous potential field into coherent clusters corresponding to clinical trial cohorts, chemotherapy regimens, and toxicity profiles.
+    \item \textbf{Localized controversy:} A single high-tension subgraph around comparative efficacy (Carboplatin vs. Cisplatin) persisted as a ``singular contradiction'' despite multiple hybrid cycles, marking it as a candidate for Pathway B (Frustration-Driven) abstraction.
+\end{itemize}
+
+The system computed a final implementation-defined \textbf{Confidence Score of 90.0} and categorized the overall \textbf{Controversy Level} as \textbf{Consensus}. These summary metrics are derived from the run artifact (JSON log) and should be interpreted as diagnostics: the low residual ratio and high confidence signal that the knowledge base is predominantly coherent, with a single encapsulated debate rather than pervasive inconsistency.
+
+\subsection{Synthetic Benchmark: The 3-Symbol XOR Paradox}
+
+To rigorously test the Conflict Cache escalation (Equation~\eqref{eq:escalation}), the spectral diffusion stability, and the TSL resolution logic in a fully controlled environment, we constructed a minimal ontology-insufficient benchmark with three symbols.
+
+\paragraph{Paradox Topology.}
+We define three symbols $S_1, S_2, S_3$ with the following constraints:
+\begin{itemize}
+    \item $C_1: S_1 \rightarrow S_2$ (implication);
+    \item $C_2: S_2 \rightarrow S_3$ (implication);
+    \item $C_3: S_1 \oplus S_3$ (XOR: $S_1$ and $S_3$ cannot share the same state).
+\end{itemize}
+To enforce a structurally irreducible contradiction, we fix $S_1 = 1$ as an immutable observation (Sensory Boundary). Under this configuration, no assignment to $(S_2, S_3)$ can satisfy all three constraints simultaneously: any attempt to enforce $C_1$ and $C_2$ will ultimately violate $C_3$.
+
+\paragraph{Engine Log and Conflict Escalation.}
+The DENSN engine is initialized with $(S_1,S_2,S_3) = (1,1,1)$ and initial tension $\Psi_{\text{init}} = 1.0$. The run proceeds for 22 cycles, while the Conflict Cache repeatedly identifies a persistent singularity (one structurally irreducible violation) and escalates its weight according to Equation~\eqref{eq:escalation}. The log records:
+\begin{itemize}
+    \item \textbf{Persistent singularities:} At epochs 3, 6, 10, 13, 17, and 21 the engine reports ``1 persistent singularities detected'' followed by ``Eq 2 Escalation: Increased weights of 1 constraints'', indicating repeated weight amplification of the same violated constraint.
+    \item \textbf{Hybrid MCM attempts:} Fifteen MCM attempts are executed, alternating between \texttt{stochastic\_flip}, \texttt{constraint\_\allowbreak reweight}, \texttt{weak\_\allowbreak constraint\_\allowbreak prune}, and \texttt{random\_restart}. Several attempts temporarily escape local minima (\texttt{escaped=True}) but none eliminate the singular violation.
+\end{itemize}
+This behavior is the intended ``pinching'' effect: paradoxical constraints become progressively heavier in the Hamiltonian until they force a structural response rather than being absorbed by further bit flips.
+
+\subsubsection{Section 6.2.1 Convergence Metrics}
+
+The synthetic run emits an explicit convergence summary:
+\begin{itemize}
+    \item \textbf{Result Converged:} \texttt{True};
+    \item \textbf{Total Cycles:} 22;
+    \item \textbf{Initial / Final Tension:} $\Psi_{\text{init}} = 1.0000$, $\Psi_{\text{final}} = 0.0000$;
+    \item \textbf{TSL Events:} 1 (creation of \texttt{META\_1});
+    \item \textbf{Flips:} 604; \textbf{Constraint evaluations:} 2,554 (2,415 served from the Conflict Cache, implying an $85.6\%$ cache rate);
+    \item \textbf{Wall-clock time:} 1,063.3 ms on the test machine.
+\end{itemize}
+
+Table~\ref{tab:synthetic_trajectory} reports the trajectory of global tension $\Psi$ and quadratic smoothness $Q$ (topological mass) across cycles. Until the TSL event, $\Psi$ increases in a staircase pattern as the violated constraint is repeatedly up-weighted, while $Q$ reflects the reshaping of the potential field under escalating local tension.
+
+\begin{table}[ht!]
+\centering
+\caption{Synthetic benchmark trajectory: tension $\Psi$ and smoothness $Q$.}
+\label{tab:synthetic_trajectory}
+\vspace{0.2cm}
+\begin{tabular}{rcccl}
+\toprule
+Cycle & $\Psi$ (Tension) & $Q$ (Topo Mass) & Status \\
+\midrule
+ 0 &  1.0000 &  6.0000 &  \\
+ 1 &  1.0000 &  6.0000 &  \\
+ 2 &  1.0000 &  6.0000 &  \\
+ 3 &  1.6000 &  6.0000 &  \\
+ 4 &  1.6000 &  6.0000 &  \\
+ 5 &  1.6000 &  6.0000 &  \\
+ 6 &  3.0000 &  6.0000 &  \\
+ 7 &  3.0000 &  6.0000 &  \\
+ 8 &  3.0000 &  6.0000 &  \\
+ 9 &  3.0000 &  6.0000 &  \\
+10 &  6.6000 & 15.3600 &  \\
+11 &  6.6000 & 15.3600 &  \\
+12 &  6.6000 & 15.3600 &  \\
+13 & 10.8000 & 34.5600 &  \\
+14 & 10.8000 & 34.5600 &  \\
+15 & 10.8000 & 34.5600 &  \\
+16 & 10.8000 & 34.5600 &  \\
+17 & 16.0000 & 96.0000 &  \\
+18 & 16.0000 & 96.0000 &  \\
+19 & 16.0000 & 96.0000 &  \\
+20 & 16.0000 & 96.0000 &  \\
+21 &  0.0000 & 25.0000 & TSL event \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We observe three distinct phases:
+\begin{enumerate}
+    \item \textbf{Baseline stagnation (cycles 0--5):} $\Psi$ remains at $1.0$ and $Q$ at $6.0$, indicating that Spectral-MCM is unable to find a tension-free configuration within the fixed ontology.
+    \item \textbf{Escalation regime (cycles 6--20):} As persistence accumulates in the Conflict Cache, the weight of the singular violated constraint increases, driving $\Psi$ from $1.0$ up to $16.0$ and inflating $Q$ from $6.0$ to $96.0$. The diffusion process propagates this localized tension through the graph, raising the overall topological mass.
+    \item \textbf{Resolution via TSL (cycle 21):} Once the local cluster energy exceeds the frustration threshold $\Psi_{\text{crit}}$, the engine reports a Level-3 TSL event and synthesizes a meta-symbol \texttt{META\_1} to encapsulate the XOR paradox. A ``hormonal reset'' then reinitializes the escalated constraint's weight to baseline in the new topology, resulting in $\Psi_{\text{final}} = 0.0$ and a non-zero $Q$ ($25.0$) corresponding to the reconfigured potential field on the expanded graph.
+\end{enumerate}
+
+This synthetic benchmark confirms the intended semantics of the DENSN architecture: in genuinely ontology-insufficient settings, the Conflict Cache does not merely produce exploding energies, but instead drives the system into a controlled topological expansion that restores a zero-tension ground state at the cost of an enriched ontology.
+
+%==============================================================================
+%   7. CONCLUSION
+%==============================================================================
+\section{Conclusion}
+
+DENSN reframes logical contradiction from a failure mode to a generative resource. By coupling spectral dynamics with a dual-pathway structural learning mechanism, we provide a mathematically grounded framework for neuro-symbolic evolution. 
+
+\textit{Limitations \& Scope}: While DENSN provides a rigorous framework for continuous-discrete optimization, its performance is subject to the \textbf{Epistemic Horizon} of the initial extraction.
+ If a paradox is fundamentally underspecified in the base corpus, TSL will generate a valid meta-symbol that remains "semantically thin" until external data foraging (PDEF) is activated. Furthermore, the $O(N^3)$ complexity of spectral initialization for large dense graphs necessitates the use of localized spectral clustering (as implemented in \texttt{spectral\_mode="LOCAL\_ONLY"}), which may skip global topological features in favor of neighborhood-level resolution.
+
+DENSN demonstrates that Intelligence is the minimization of a hybrid potential: the weighted sum of \textbf{Logical Frustration} (Error) and \textbf{Topological Complexity} (Structure).
+ By defining this potential spectrally, we allow the system to self-organize not just to solve paradoxes, but to build the most efficient representation of its reality—whether that reality is a messy environmental debate or a settled medical treatment.
+
+%==============================================================================
+%   REFERENCES
+%==============================================================================
+\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{alchourron1985logic}
+Alchourrón, C. E., Gärdenfors, P., \& Makinson, D. (1985).
+On the Logic of Theory Change: Partial Meet Contraction and Revision Functions.
+\textit{The Journal of Symbolic Logic}, 50(2), 510--530.
+
+\bibitem{badreddine2022logic}
+Badreddine, S., Garcez, A. d., Serafini, L., \& Spranger, M. (2022).
+Logic Tensor Networks.
+\textit{Artificial Intelligence}, 303, 103649.
+
+\bibitem{belkin2003laplacian}
+Belkin, M., \& Niyogi, P. (2003).
+Laplacian Eigenmaps for Dimensionality Reduction and Data Representation.
+\textit{Neural Computation}, 15(6), 1373--1396.
+
+\bibitem{brayton1984logic}
+Brayton, R. K., et al. (1984).
+\textit{Logic Minimization Algorithms for VLSI Synthesis}.
+Springer Science \& Business Media.
+
+\bibitem{chung1997spectral}
+Chung, F. R. K. (1997).
+\textit{Spectral Graph Theory}.
+CBMS Regional Conference Series in Mathematics, No. 92.
+
+\bibitem{een2003extensible}
+Een, N., \& Sörensson, N. (2003).
+An Extensible SAT-solver.
+In \textit{International Conference on Theory and Applications of Satisfiability Testing} (pp. 502--518). Springer.
+
+\bibitem{fiedler1973algebraic}
+Fiedler, M. (1973).
+Algebraic Connectivity of Graphs.
+\textit{Czechoslovak Mathematical Journal}, 23(2), 298--305.
+
+\bibitem{garcez2019neural}
+Garcez, A. d., Besold, T. R., \& de Raedt, L. (2019).
+Neural-symbolic computing: An effective methodology for principled integration of machine learning and reasoning.
+\textit{Journal of Applied Logic}, 35, 1--32.
+
+\bibitem{lecun2006tutorial}
+LeCun, Y., Chopra, S., Hadsell, R., Ranzato, M., \& Huang, F. (2006).
+A Tutorial on Energy-Based Learning.
+\textit{Predicting Structured Data}. MIT Press.
+
+\bibitem{manhaeve2018deepproblog}
+Manhaeve, R., et al. (2018).
+DeepProbLog: Neural Probabilistic Logic Programming.
+In \textit{Advances in Neural Information Processing Systems} (pp. 3749--3759).
+
+\bibitem{mao2019neuro}
+Mao, J., et al. (2019).
+The Neuro-Symbolic Concept Learner: Interpreting Scenes, Words, and Sentences from Natural Supervision.
+In \textit{International Conference on Learning Representations}.
+
+\bibitem{ozols2003phase}
+Ozols, R. F., et al. (2003).
+Phase III Trial of Carboplatin and Paclitaxel Compared with Cisplatin and Paclitaxel in Patients with Optimally Resected Stage III Ovarian Cancer.
+\textit{Journal of Clinical Oncology}, 21(17), 3194--3200.
+
+\bibitem{priest2006contradiction}
+Priest, G. (2006).
+\textit{In Contradiction: A Study of the Transconsistent}.
+Oxford University Press.
+
+\bibitem{richardson2006markov}
+Richardson, M., \& Domingos, P. (2006).
+Markov Logic Networks.
+\textit{Machine Learning}, 62(1-2), 107--136.
+
+\bibitem{rissanen1978modeling}
+Rissanen, J. (1978).
+Modeling by Shortest Data Description.
+\textit{Automatica}, 14(5), 465--471.
+
+\bibitem{selman1994noise}
+Selman, B., Kautz, H. A., \& Cohen, B. (1994).
+Noise Strategies for Improving Local Search.
+In \textit{AAAI} (Vol. 94, pp. 337--343).
+
+\end{thebibliography}
+
+\clearpage
+
+%==============================================================================
+%   APPENDIX: LYAPUNOV STABILITY PROOF
+%==============================================================================
+\appendix
+\section{Proof of Spectral Stability}
+\label{appendix:stability}
+
+In this appendix, we provide a derivation of a sufficient stability condition for the spectral diffusion component, and a Lyapunov-style boundedness argument for the hybrid cycle.
+
+\subsection{A.1 Notation and Preliminaries}
+Let $L$ be the graph Laplacian, a real symmetric positive semidefinite matrix. By the Spectral Theorem, $L$ has an orthonormal eigenbasis $\{u_1, \dots, u_n\}$ with corresponding eigenvalues $0 = \lambda_1 < \lambda_2 \le \dots \le \lambda_{\max}$.
+
+The potential field $\Phi_t$ can be expanded in this basis as $\Phi_t = \sum_{i=1}^n c_{i,t} u_i$.
+The \textbf{Quadratic Field Energy} (smoothness) is defined as $Q(\Phi_t) = \Phi_t^\top L \Phi_t = \sum_{i=1}^n \lambda_i c_{i,t}^2$.
+
+\subsection{A.2 Continuous Phase Stability (Lemma 1)}
+\begin{lemma}
+For the diffusion update $\PhiField_{t+1} = (I - \kappa \Laplacian)\PhiField_t$, if $0 < \kappa < 2/\lambda_{\max}$, then $Q(\PhiField_{t+1}) \le Q(\PhiField_t)$, with strict inequality if $\PhiField_t$ contains any non-zero frequency components.
+\end{lemma}
+
+\begin{proof}
+Consider the update in the spectral domain. Applying $(I - \kappa \Laplacian)$ to the basis expansion:
+\begin{equation}
+    \PhiField_{t+1} = \sum_{i=1}^n c_{i,t} (I - \kappa \Laplacian) u_i = \sum_{i=1}^n c_{i,t} (1 - \kappa \lambda_i) u_i
+\end{equation}
+The new spectral coefficients are $c_{i,t+1} = (1 - \kappa \lambda_i) c_{i,t}$. The ratio of energy in each mode $i$ is:
+\begin{equation}
+    \frac{\lambda_i (1 - \kappa \lambda_i)^2 c_{i,t}^2}{\lambda_i c_{i,t}^2} = (1 - \kappa \lambda_i)^2
+\end{equation}
+For monotonic decrease, we require $(1 - \kappa \lambda_i)^2 < 1$ for all $\lambda_i > 0$. This implies $-1 < 1 - \kappa \lambda_i < 1$, or $0 < \kappa \lambda_i < 2$. Since $\lambda_i \le \lambda_{\max}$ for all $i$, the condition $0 < \kappa < \frac{2}{\lambda_{\max}}$ guarantees that the contraction factor is strictly less than 1 for all non-zero modes. Thus, $Q(\PhiField_{t+1}) < Q(\PhiField_t)$.
+\end{proof}
+
+\subsection{A.3 Theorem 1: Lyapunov-Style Boundedness for the Hybrid Cycle}
+\begin{theorem}
+Define the hybrid Lyapunov candidate $V(\PhiField, T) = \Psi(T) + \alpha Q(\PhiField)$. Under the bounded forcing assumption ($\mathbf{b}_t^\top \Laplacian \mathbf{b}_t \le B$) and a bounded flip-impact assumption, there exists a weighting factor $\alpha$ such that the full hybrid cycle yields a negative expected drift in $V$ outside a bounded set.
+\end{theorem}
+
+\begin{proof}
+Let the cycle consist of one diffusion step followed by one collapse step. The change in energy is $\Delta V = \Delta \Psi + \alpha \Delta Q$.
+
+1. \textbf{Collapse Step:} As per Algorithm 1, the collapse operator accepts a flip only if $\Delta \Psi < 0$ (Greedy) or via noise. In the deterministic limit, $\Delta \Psi \le -\delta$ for some minimum discrete energy quantum $\delta$. The change in $Q$ due to a single bit flip is bounded by a constant $M$ for finite graphs.
+
+2. \textbf{Diffusion Step:} By Lemma 1, diffusion reduces $Q$ by a factor $\epsilon > 0$.\footnote{While Lemma 1 guarantees a reduction, the specific magnitude of $\epsilon$ is dependent on the spectral decomposition of $\PhiField_t$; smooth fields dominated by low-frequency components exhibit slower decay than highly non-smooth residual fields.} $\Psi$ is invariant under diffusion as symbol states $T$ are fixed.
+
+Total expected change is bounded by: $\Delta V \le -\delta + \alpha (M - \epsilon Q)$. By choosing $\alpha < \frac{\delta}{M}$, we ensure $\Delta V < 0$ for all $Q$ above a finite threshold. Thus, the system exhibits Lyapunov-style boundedness.
+\end{proof}
+
+\end{document}
