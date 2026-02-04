@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this theory in your research, please cite it as below."
+authors:
+- family-names: "O'Boyle"
+  given-names: "Liam"
+  email: "liamoboyle0@gmail.com"
+title: "DENSN: Dynamic Energy-Based Neuro-Symbolic Network"
+version: 1.0.0
+date-released: 2025-09-08
+url: "https://github.com/1-Liam/DENSN"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "O'Boyle"
+    given-names: "Liam"
+  journal: "Open Research Archive"
+  title: "DENSN: Dual-Pathway Neuro-Symbolic Optimization via Spectral Structure Learning"
+  year: 2025
